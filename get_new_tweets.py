@@ -38,6 +38,12 @@ class DataGetter(object):
         return sorted([texts[key][1] for key in texts])
     
     @property
+    def geo(self):
+        for key in self.tweets:
+            if self.tweets[key]['geo']:
+                print self.tweets[key]['geo']
+    
+    @property
     def texts(self):
         tweet_re=re.compile('^I would pay\s\$(.*)\sa month for a standalone @HBOGO subscription')
         result=dict()
@@ -49,7 +55,10 @@ class DataGetter(object):
                     amount=float(tweet_re.findall(text)[0])
                     result[key]=tuple([text, amount])
                 except ValueError:
+                    self._dprint("FAIL(FLOAT): %s" % text)
                     pass
+            else:
+                self._dprint("FAIL(REGEX): %s" % text)
         return result
     
     def update_recent_tweets(self):
@@ -73,8 +82,8 @@ class DataGetter(object):
     def save_tweets(self):
         pickle.dump(self.tweets, open('tweets', 'wb'))
         
-data_getter=DataGetter(debug=True)
-#data_getter.update_recent_tweets()
+data_getter=DataGetter(debug=False)
+data_getter.update_recent_tweets()
 #data_getter.save_tweets()
 #print len(data_getter.tweets)
 #print data_getter.texts
@@ -86,3 +95,5 @@ percentile=20
 for i in range(1,percentile):
     loc=i*amounts_size/percentile
     print loc, amounts[loc]
+    
+print data_getter.geo
